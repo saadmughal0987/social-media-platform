@@ -1,0 +1,100 @@
+const express = require('express');
+const router = express.Router();
+const Post = require('../models/post');
+const User = require('../models/user');
+const Comment = require('../models/comment');
+
+
+
+// 1. FOLLOW USER 
+// URL: /api/social/follow/:id
+router.put('/follow/:id',    async (req, res) => {
+    try {
+        if (req.params.id === req.user._id.toString()) {
+            return res.status(400).json({ message: "You cannot follow yourself" });
+        }
+
+        const targetUser = await User.findByIdAndUpdate(req.params.id, {
+            $addToSet: { followers: req.user._id }
+        });
+
+        await User.findByIdAndUpdate(req.user._id, {
+            $addToSet: { following: req.params.id }
+        });
+
+        if (!targetUser) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        res.json({ message: "Followed successfully" });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// 2. UNFOLLOW USER [cite: 78]
+// URL: /api/social/unfollow/:id
+router.put('/unfollow/:id',    async (req, res) => {
+    try {
+        const targetUser = await User.findByIdAndUpdate(req.params.id, {
+            $pull: { followers: req.user._id }
+        });
+
+        await User.findByIdAndUpdate(req.user._id, {
+            $pull: { following: req.params.id }
+        });
+
+        if (!targetUser) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        res.json({ message: "Unfollowed successfully" });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// 3. LIKE / UNLIKE POST 
+// URL: /api/social/like/:postId
+router.put('/like/:postId',    async (req, res) => {
+    try {
+        const post = await Post.findById(req.params.postId);
+        if (!post) {
+            return res.status(404).json({ message: "Post not found" });
+        }
+
+        // Toggle Logic
+        if (post.likes.includes(req.user._id)) {
+            await post.updateOne({ $pull: { likes: req.user._id } }); // Unlike
+            res.json({ message: "Post Unliked" });
+        } else {
+            await post.updateOne({ $push: { likes: req.user._id } }); // Like
+            res.json({ message: "Post Liked" });
+        }
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// 4. ADD COMMENT 
+// URL: /api/social/comment/:postId
+router.post('/comment/:postId',    async (req, res) => {
+    try {
+        // Comment create karo
+        const newComment = new Comment({
+            text: req.body.text,
+            post: req.params.postId,
+            author: req.user._id
+        });
+        const savedComment = await newComment.save();
+
+        // Post mein comment ID add karo
+        await Post.findByIdAndUpdate(req.params.postId, {
+            $push: { comments: savedComment._id }
+        });
+
+        res.status(201).json({ message: "Comment added", comment: savedComment });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+module.exports = router;

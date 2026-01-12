@@ -1,0 +1,92 @@
+@startuml
+
+' Styling
+skinparam classAttributeIconSize 0
+skinparam classBackgroundColor White
+skinparam classBorderColor Black
+skinparam classArrowColor Black
+
+title Class Diagram - Social Connect (Instagram Clone)
+
+class User {
+    ' Fields from Source [cite: 27]
+    + _id : ObjectId
+    + username : String
+    + email : String
+    + password : String
+    + fullName : String
+    + bio : String
+    + profilePic : String
+    + followers : ObjectId[]
+    + following : ObjectId[]
+    + createdAt : Date
+
+    ' Methods from API Endpoints [cite: 43-61, 76-79]
+    + signup()
+    + login()
+    + logout()
+    + getProfile(username)
+    + updateProfile(bio, fullName)
+    + uploadAvatar(file)
+    + searchUser(query)
+    + followUser(userId)
+    + unfollowUser(userId)
+}
+
+class Post {
+    ' Fields from Source [cite: 31]
+    + _id : ObjectId
+    + caption : String
+    + image : String
+    + location : String
+    + author : ObjectId
+    + likes : ObjectId[]
+    + comments : ObjectId[]
+    + createdAt : Date
+
+    ' Methods from API Endpoints [cite: 64-73, 80]
+    + createPost(file, caption)
+    + getFeed()
+    + getUserPosts(username)
+    + deletePost(postId)
+    + editPost(postId, caption)
+    + likePost(postId)
+}
+
+class Comment {
+    ' Fields from Source [cite: 34]
+    + _id : ObjectId
+    + text : String
+    + author : ObjectId
+    + post : ObjectId
+    + createdAt : Date
+
+    ' Method from API [cite: 82]
+    + addComment(postId, text)
+}
+
+class Story {
+    ' Fields from Source [cite: 38]
+    + _id : ObjectId
+    + image : String
+    + author : ObjectId
+    + createdAt : Date
+
+    ' TTL Logic [cite: 37]
+    + createStory(file)
+    + autoDeleteAfter24Hours()
+}
+
+' Relationships
+' User creates content
+User "1" --> "*" Post : "creates"
+User "1" --> "*" Comment : "writes"
+User "1" --> "*" Story : "uploads"
+
+' Social Graph [cite: 26]
+User "*" -- "*" User : "follows >"
+
+' Post contains comments
+Post "1" *-- "*" Comment : "has"
+
+@enduml
