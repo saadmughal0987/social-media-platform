@@ -97,4 +97,35 @@ router.post('/comment/:postId',    async (req, res) => {
     }
 });
 
+// 5. DELETE COMMENT
+// URL: /api/social/comment/:commentId
+router.delete('/comment/:commentId',    async (req, res) => {
+    try {
+        // Comment dhoondo
+        const comment = await Comment.findById(req.params.commentId);
+
+        if (!comment) {
+            return res.status(404).json({ message: "Comment not found" });
+        }
+
+        // SECURITY CHECK: Kya ye comment delete karne wala wahi banda hai jisne likhi thi?
+        if (comment.author.toString() !== req.user._id.toString()) {
+            return res.status(401).json({ message: "Unauthorized: You can only delete your own comments" });
+        }
+
+        // Post se comment ID hatao
+        await Post.findByIdAndUpdate(comment.post, {
+            $pull: { comments: req.params.commentId }
+        });
+
+        // Database se comment uda do
+        await comment.deleteOne();
+
+        res.json({ message: "Comment deleted successfully" });
+
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 module.exports = router;

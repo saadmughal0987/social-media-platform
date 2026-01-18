@@ -23,7 +23,7 @@ router.get('/profile/:username',    async (req, res) => {
 
 // 2. Search Users (🔍 NAYA)
 // URL: /api/user/search?q=ali
-router.get('/search', isLoggedIn , async (req, res) => {
+router.get('/search' , async (req, res) => {
     try {
         const query = req.query.q; // URL se 'q' ki value uthao
         if (!query) {

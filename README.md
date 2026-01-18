@@ -1,7 +1,7 @@
 # Final Project by Folios
 
 ## Overview
-This is a backend implementation of a social media platform built as a final project for Web Application Development course. The application provides features for user authentication, posting, stories, comments, and social interactions using Node.js, Express, and MongoDB.
+Folios Social is a comprehensive backend API for a social media platform, developed as a final project for the Web Application Development course. It empowers users to create accounts, share posts with images, publish temporary stories, engage through comments, and build social connections via likes and follows. Built with Node.js and Express.js, it leverages MongoDB for data persistence, Passport.js for secure authentication, and Multer for efficient file handling.
 
 ## Features
 - User registration and authentication (using Passport.js)
@@ -56,15 +56,15 @@ The server will run on `http://localhost:3000`
 - `/api/stories` - Stories management (protected)
 
 ## Project Structure
-- `server.js` - Main application entry point
-- `db.js` - Database connection
-- `models/` - Mongoose models (User, Post, Story, Comment)
-- `routes/` - API route handlers
-- `middleware/` - Custom middleware (authentication, file upload)
-- `config/` - Configuration files (Passport setup)
-- `uploads/` - Static file uploads directory
-- `Documentation/` - Project design documents
-- `classDiagram/` - UML class diagrams
+- `server.js` - Main application entry point and server configuration
+- `db.js` - MongoDB connection setup
+- `models/` - Mongoose schemas for User, Post, Story, and Comment entities
+- `routes/` - Express route handlers for authentication, user management, posts, social interactions, and stories
+- `middleware/` - Custom middleware for authentication checks and file upload processing
+- `config/` - Passport.js configuration for local authentication strategy
+- `uploads/` - Directory for storing user-uploaded images and media files
+- `Documentation/` - Project design documents and specifications
+- `classDiagram/` - UML class diagrams illustrating the system architecture
 
 ## Future Plans
 - Implement a realtime chat bot feature for user interactions

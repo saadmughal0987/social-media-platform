@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const passport = require('passport');
-const bcrypt = require('bcryptjs'); 
-const User = require('../models/user'); 
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const User = require('../models/user');
 
 router.post('/signup', async (req, res) => {
     try {
@@ -40,41 +41,27 @@ router.post('/signup', async (req, res) => {
 router.post('/login', (req, res, next) => {
     passport.authenticate('local', (err, user, info) => {
         if (err) return next(err);
-        
+
         if (!user) {
-            return res.status(400).json({ message: info.message }); 
+            return res.status(400).json({ message: info.message });
         }
 
-        req.logIn(user, (err) => {
-            if (err) return next(err);
-            
-            return res.json({ 
-                message: "Login Successful",
-                user: {
-                    id: user._id,
-                    username: user.username,
-                    email: user.email,
-                    fullName: user.fullName
-                }
-            });
+        const token = jwt.sign({ id: user._id }, 'social_connect_secret', { expiresIn: '1h' });
+
+        return res.json({
+            message: "Login Successful",
+            token,
+            user: {
+                id: user._id,
+                username: user.username,
+                email: user.email,
+                fullName: user.fullName
+            }
         });
     })(req, res, next);
 });
 
-router.post('/logout', (req, res, next) => {
-    req.logout((err) => {
-        if (err) return next(err);
-
-        req.session.destroy((err) => {
-            if (err) {
-                console.log(err);
-                return res.status(500).json({ message: "Logout error" });
-            }
-
-            res.clearCookie('connect.sid');
-            
-            res.json({ message: "Logged out successfully" });
-        });
-    });
+router.post('/logout', (req, res) => {
+    res.json({ message: "Logged out successfully" });
 });
 module.exports = router;
